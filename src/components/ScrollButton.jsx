@@ -27,7 +27,7 @@ const ScrollButton = () => {
 
   return (
     <button
-      className={`rounded-full  fixed bg-third hover:bg-orange-600 duration-300 right-[70px] bottom-[50px] p-4 w-[50px] h-[50px] ${
+      className={`rounded-full  fixed bg-third hover:bg-orange-600 duration-300 right-[20px] md:right-[70px] bottom-[50px] p-4 w-[50px] h-[50px] z-10 ${
         visible ? "flex" : "hidden"
       }`}
       onClick={scrollToTop}

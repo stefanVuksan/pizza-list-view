@@ -10,7 +10,7 @@ import Drawer from "react-drag-drawer";
 
 //components
 import ScrollButton from "./components/ScrollButton";
-
+import CustomDrawer from "./components/Drawer";
 //styles
 import "swiper/css";
 import "swiper/css";
@@ -30,6 +30,7 @@ function App() {
   const [data, setData] = useState(mockData.restaurants.numberone);
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [carts, setCarts] = useState([]);
+  const [cartopen, setCartOpen] = useState(false);
 
   const toggleStick = useCallback(() => {
     const scrolled = document.documentElement.scrollTop;
@@ -75,6 +76,44 @@ function App() {
       }
     }
     setData({ ...data, meals: newMeals });
+  };
+
+  const CartList = () => {
+    return (
+      <div className="h-[55%] overflow-y-scroll mt-6 cart-scroll">
+        {carts.map((cart, key) => (
+          <div
+            className=" mt-3 border-[1px] rounded-md p-3 border-primary relative"
+            key={key}
+          >
+            <h1 className="text-md font-semibold pr-5">{cart.name}</h1>
+            <h2 className="text-sm font-semibold pr-5">{cart.price}</h2>
+            <svg
+              version="1.1"
+              className="cursor-pointer absolute right-2 top-1/2 translate-y-[-50%] w-6"
+              id="Layer_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              y="0px"
+              viewBox="0 0 122.88 119.72"
+              style={{ enableBackground: "new 0 0 122.88 119.72" }}
+              xmlSpace="preserve"
+              onClick={() =>
+                setCarts([...carts.filter((ca) => ca.name !== cart.name)])
+              }
+            >
+              <g>
+                <path
+                  d="M22.72,0h77.45c6.25,0,11.93,2.56,16.05,6.67c4.11,4.11,6.67,9.79,6.67,16.05v74.29c0,6.25-2.56,11.93-6.67,16.05 l-0.32,0.29c-4.09,3.94-9.64,6.38-15.73,6.38H22.72c-6.25,0-11.93-2.56-16.05-6.67l-0.3-0.32C2.43,108.64,0,103.09,0,97.01V22.71 c0-6.25,2.55-11.93,6.67-16.05C10.78,2.55,16.46,0,22.72,0L22.72,0z M39.92,65.83c-3.3,0-5.97-2.67-5.97-5.97 c0-3.3,2.67-5.97,5.97-5.97h43.05c3.3,0,5.97,2.67,5.97,5.97c0,3.3-2.67,5.97-5.97,5.97H39.92L39.92,65.83z M100.16,10.24H22.72 c-3.43,0-6.55,1.41-8.81,3.67c-2.26,2.26-3.67,5.38-3.67,8.81v74.29c0,3.33,1.31,6.35,3.43,8.59l0.24,0.22 c2.26,2.26,5.38,3.67,8.81,3.67h77.45c3.32,0,6.35-1.31,8.59-3.44l0.21-0.23c2.26-2.26,3.67-5.38,3.67-8.81V22.71 c0-3.42-1.41-6.54-3.67-8.81C106.71,11.65,103.59,10.24,100.16,10.24L100.16,10.24z"
+                  fill="#d01b1b"
+                />
+              </g>
+            </svg>
+          </div>
+        ))}
+      </div>
+    );
   };
 
   const SearchIcon = () => {
@@ -200,7 +239,7 @@ function App() {
                   >
                     <SearchIcon />
                   </button>
-                  <div className="relative px-10 pr-16 w-full">
+                  <div className="relative px-10 pr-16 w-[95%]">
                     <div className="swiper-button image-swiper-button-next">
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
@@ -238,7 +277,7 @@ function App() {
                       </svg>
                     </div>
                     <Swiper
-                      slidesPerView={5}
+                      slidesPerView={1}
                       spaceBetween={10}
                       slidesPerGroup={1}
                       loop={false}
@@ -249,7 +288,16 @@ function App() {
                         prevEl: `.image-swiper-button-prev`,
                         disabledClass: `swiper-button-disabled`,
                       }}
-                      //navigation={true}
+                      breakpoints={{
+                        // when window width is >= 640px
+                        640: {
+                          slidesPerView: 2,
+                        },
+                        // when window width is >= 768px
+                        768: {
+                          slidesPerView: 5,
+                        },
+                      }}
                       modules={[Pagination, Navigation, Mousewheel]}
                       className="mySwiper"
                     >
@@ -385,6 +433,30 @@ function App() {
             return rows;
           })()}
           <ScrollButton />
+          <button
+            className="border-[3px] border-primary p-3 rounded-full fixed left-[20px] bottom-[100px] md:hidden bg-primary"
+            onClick={() => setCartOpen(true)}
+          >
+            <svg
+              version="1.1"
+              id="Layer_1"
+              xmlns="http://www.w3.org/2000/svg"
+              xmlnsXlink="http://www.w3.org/1999/xlink"
+              x="0px"
+              width="30px"
+              y="0px"
+              viewBox="0 0 122.9 107.5"
+              style={{ enableBackground: "new 0 0 122.9 107.5" }}
+              xmlSpace="preserve"
+            >
+              <g>
+                <path
+                  d="M3.9,7.9C1.8,7.9,0,6.1,0,3.9C0,1.8,1.8,0,3.9,0h10.2c0.1,0,0.3,0,0.4,0c3.6,0.1,6.8,0.8,9.5,2.5c3,1.9,5.2,4.8,6.4,9.1 c0,0.1,0,0.2,0.1,0.3l1,4H119c2.2,0,3.9,1.8,3.9,3.9c0,0.4-0.1,0.8-0.2,1.2l-10.2,41.1c-0.4,1.8-2,3-3.8,3v0H44.7 c1.4,5.2,2.8,8,4.7,9.3c2.3,1.5,6.3,1.6,13,1.5h0.1v0h45.2c2.2,0,3.9,1.8,3.9,3.9c0,2.2-1.8,3.9-3.9,3.9H62.5v0 c-8.3,0.1-13.4-0.1-17.5-2.8c-4.2-2.8-6.4-7.6-8.6-16.3l0,0L23,13.9c0-0.1,0-0.1-0.1-0.2c-0.6-2.2-1.6-3.7-3-4.5 c-1.4-0.9-3.3-1.3-5.5-1.3c-0.1,0-0.2,0-0.3,0H3.9L3.9,7.9z M96,88.3c5.3,0,9.6,4.3,9.6,9.6c0,5.3-4.3,9.6-9.6,9.6 c-5.3,0-9.6-4.3-9.6-9.6C86.4,92.6,90.7,88.3,96,88.3L96,88.3z M53.9,88.3c5.3,0,9.6,4.3,9.6,9.6c0,5.3-4.3,9.6-9.6,9.6 c-5.3,0-9.6-4.3-9.6-9.6C44.3,92.6,48.6,88.3,53.9,88.3L53.9,88.3z M33.7,23.7l8.9,33.5h63.1l8.3-33.5H33.7L33.7,23.7z"
+                  fill="#fff"
+                />
+              </g>
+            </svg>
+          </button>
         </div>
         <div className="w-full hidden md:block  md:w-[20%] px-4 py-10 bg-[#f1f1f1] fixed h-full right-0">
           <h1 className="text-3xl font-bold text-center">Warenkorb</h1>
@@ -408,42 +480,10 @@ function App() {
             Fülle deinen Warenkorb
           </h1>
           <p className="text-md text-center mt-1">
-            Füge einige leckere Gerichte aus der Speisekarte hinzu und bestelle
+            Füge einige leckere Gefrichte aus der Speisekarte hinzu und bestelle
             dein Essen.
           </p>
-          <div class="h-[55%] overflow-y-scroll mt-6 cart-scroll">
-            {carts.map((cart, key) => (
-              <div
-                className=" mt-3 border-[1px] rounded-md p-3 border-primary relative"
-                key={key}
-              >
-                <h1 className="text-md font-semibold pr-5">{cart.name}</h1>
-                <h2 className="text-sm font-semibold pr-5">{cart.price}</h2>
-                <svg
-                  version="1.1"
-                  className="cursor-pointer absolute right-2 top-1/2 translate-y-[-50%] w-6"
-                  id="Layer_1"
-                  xmlns="http://www.w3.org/2000/svg"
-                  xmlnsXlink="http://www.w3.org/1999/xlink"
-                  x="0px"
-                  y="0px"
-                  viewBox="0 0 122.88 119.72"
-                  style={{ enableBackground: "new 0 0 122.88 119.72" }}
-                  xmlSpace="preserve"
-                  onClick={() =>
-                    setCarts([...carts.filter((ca) => ca.name !== cart.name)])
-                  }
-                >
-                  <g>
-                    <path
-                      d="M22.72,0h77.45c6.25,0,11.93,2.56,16.05,6.67c4.11,4.11,6.67,9.79,6.67,16.05v74.29c0,6.25-2.56,11.93-6.67,16.05 l-0.32,0.29c-4.09,3.94-9.64,6.38-15.73,6.38H22.72c-6.25,0-11.93-2.56-16.05-6.67l-0.3-0.32C2.43,108.64,0,103.09,0,97.01V22.71 c0-6.25,2.55-11.93,6.67-16.05C10.78,2.55,16.46,0,22.72,0L22.72,0z M39.92,65.83c-3.3,0-5.97-2.67-5.97-5.97 c0-3.3,2.67-5.97,5.97-5.97h43.05c3.3,0,5.97,2.67,5.97,5.97c0,3.3-2.67,5.97-5.97,5.97H39.92L39.92,65.83z M100.16,10.24H22.72 c-3.43,0-6.55,1.41-8.81,3.67c-2.26,2.26-3.67,5.38-3.67,8.81v74.29c0,3.33,1.31,6.35,3.43,8.59l0.24,0.22 c2.26,2.26,5.38,3.67,8.81,3.67h77.45c3.32,0,6.35-1.31,8.59-3.44l0.21-0.23c2.26-2.26,3.67-5.38,3.67-8.81V22.71 c0-3.42-1.41-6.54-3.67-8.81C106.71,11.65,103.59,10.24,100.16,10.24L100.16,10.24z"
-                      fill="#d01b1b"
-                    />
-                  </g>
-                </svg>
-              </div>
-            ))}
-          </div>
+          <CartList />
         </div>
       </div>
       <Drawer
@@ -452,7 +492,7 @@ function App() {
         direction="left"
         modalElementClass="w-[80%] md:w-1/2 ml-auto z-30"
       >
-        <div className="h-screen bg-white p-10 z-20">
+        <div className="h-screen bg-white p-10 z-20 overflow-y-scroll">
           <h1 className="text-3xl font-bold opacity-80">
             Weitere Produktinformationen
           </h1>
@@ -482,6 +522,9 @@ function App() {
           </p>
         </div>
       </Drawer>
+      <CustomDrawer isOpen={cartopen} setIsOpen={setCartOpen}>
+        <CartList />
+      </CustomDrawer>
     </>
   );
 }
