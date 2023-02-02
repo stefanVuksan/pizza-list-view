@@ -58,6 +58,10 @@ element.style {
   justify-content: center;
 }
 
+.swiper-slide a {
+  padding: 5px 15px;
+}
+
 .swiper {
   padding: 0 30px !important;
 }
@@ -69,8 +73,32 @@ element.style {
   color: #940101
 }
 
+.swiper-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+  cursor: pointer;
+}
+
+.image-swiper-button-prev {
+  left: 8px;
+}
+
+.image-swiper-button-next {
+  right: 32px;
+}
+
+.swiper-button-disabled {
+  opacity: 0.5;
+}
+
 .active {
   color: white;
   background: #3c0101 !important;
   border-radius: 20px
+}
+
+.cart-scroll::-webkit-scrollbar {
+  display: none;
 }

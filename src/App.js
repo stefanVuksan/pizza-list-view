@@ -1,11 +1,12 @@
 // modules
 import "./App.css";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination, Navigation, Mousewheel } from "swiper";
 import mockData from "./restaurants-with-reviews.json";
 import ReactStars from "react-rating-stars-component";
 import { Link } from "react-scroll";
+import Drawer from "react-drag-drawer";
 
 //components
 import ScrollButton from "./components/ScrollButton";
@@ -23,27 +24,30 @@ import "swiper/css/navigation";
 import background from "./images/271_italian_pizza_106.avif";
 
 function App() {
-  const [currentTab, setCurrentTab] = useState();
   const [navStick, setNavStick] = useState(false);
   const [searchBox, setSearchBox] = useState(false);
   const [keyword, setKeyword] = useState("");
   const [data, setData] = useState(mockData.restaurants.numberone);
+  const [isInfoOpen, setInfoOpen] = useState(false);
+  const [carts, setCarts] = useState([]);
 
-  const toggleStick = () => {
+  const toggleStick = useCallback(() => {
     const scrolled = document.documentElement.scrollTop;
     if (scrolled > 350) {
       setNavStick(true);
     } else if (scrolled <= 350) {
       setNavStick(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     window.addEventListener("scroll", toggleStick);
-  }, []);
+    return () => {
+      window.removeEventListener("scroll", toggleStick);
+    };
+  }, [toggleStick]);
 
   const searchByKey = (e) => {
-    console.log(e.target.value);
     setKeyword(e.target.value);
     const temp = mockData.restaurants.numberone;
     const newMeals = {};
@@ -55,9 +59,11 @@ function App() {
         const element = temp.meals[key];
 
         let newItems = element.items.map((item) =>
-          findStr(item.name, e.target.value) ? item : undefined
+          findStr(item.name, e.target.value) ||
+          findStr(item.description, e.target.value)
+            ? item
+            : undefined
         );
-        console.log(newItems, "-=-=-");
         newItems = newItems.filter(function (element) {
           return element !== undefined;
         });
@@ -68,7 +74,6 @@ function App() {
         };
       }
     }
-    console.log(newMeals);
     setData({ ...data, meals: newMeals });
   };
 
@@ -97,10 +102,10 @@ function App() {
     <>
       <div className="flex flex-row">
         <div
-          className="w-100 md:w-[70%] border-r-[3px] border-[#ddd] relative"
+          className="w-full md:w-[80%] border-r-[3px] border-[#ddd] relative"
           id=""
         >
-          <div className="shadow-xl pb-1">
+          <div className="shadow-xl pb-1 w-full">
             <div className="relative">
               <img
                 src={background}
@@ -113,7 +118,7 @@ function App() {
                 alt="logo"
               />
             </div>
-            <div className="px-3 py-5">
+            <div className="px-4 md:px-20 py-5">
               <h1 className="text-3xl font-bold">{data.name}</h1>
               <div className="float-right">
                 <button className="bg-gray-100 text-white rounded-full p-4 hover:bg-secondary hover:text-white duration-300 mr-3">
@@ -145,7 +150,7 @@ function App() {
                 </button>
               </div>
 
-              <div className="flex text-red mt-3 items-center">
+              <div className="md:flex text-red mt-3 items-center">
                 <div className="pointer-events-none">
                   <ReactStars
                     count={5}
@@ -157,7 +162,7 @@ function App() {
                     fullIcon={<i className="fa fa-star"></i>}
                     activeColor="#ffd700"
                     edit={false}
-                    value={3.5}
+                    value={5}
                   />
                 </div>
                 <a href="#d" className="underline text-sm mx-2">
@@ -183,61 +188,101 @@ function App() {
             <div
               className={` ${
                 navStick
-                  ? "fixed top-0 w-[70%] border-[#ddd] border-r-[3px] bg-white  z-100 shadow-xl"
-                  : ""
+                  ? "fixed top-0 w-full md:w-[80%]  border-[#ddd] border-r-[3px] bg-white  z-100 shadow-xl"
+                  : "w-full"
               }`}
             >
               {!searchBox ? (
-                <div className="py-2 flex items-center px-3">
+                <div className="py-2 flex items-center px-4 md:px-20">
                   <button
-                    className="bg-gray-100 text-white rounded-full p-2 hover:bg-secondary hover:text-white duration-300 mr-2"
+                    className="bg-gray-100 text-white rounded-full p-2 hover:bg-secondary hover:text-white duration-300"
                     onClick={() => setSearchBox(true)}
                   >
                     <SearchIcon />
                   </button>
-                  <Swiper
-                    slidesPerView={5}
-                    spaceBetween={30}
-                    slidesPerGroup={1}
-                    loop={false}
-                    //slideToClickedSlide={true}
-                    mousewheel={true}
-                    navigation={true}
-                    modules={[Pagination, Navigation, Mousewheel]}
-                    className="mySwiper"
-                  >
-                    {(() => {
-                      let slider = [];
-                      for (const key in data.meals) {
-                        if (Object.hasOwnProperty.call(data.meals, key)) {
-                          slider.push(
-                            <SwiperSlide
-                              key={key}
-                              className="cursor-poiner"
-                              isActive={currentTab === key ? true : false}
-                            >
-                              <Link
-                                activeClass="active"
-                                className={`cursor-pointer text-md font-semibold  px-3 py-1 rounded-full duration-300`}
-                                smooth
-                                spy
-                                to={key}
-                                onClick={() => {
-                                  setCurrentTab(key);
-                                }}
+                  <div className="relative px-10 pr-16 w-full">
+                    <div className="swiper-button image-swiper-button-next">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        shapeRendering="geometricPrecision"
+                        textRendering="geometricPrecision"
+                        imageRendering="optimizeQuality"
+                        fillRule="evenodd"
+                        width="25px"
+                        clipRule="evenodd"
+                        viewBox="0 0 512 512"
+                      >
+                        <path
+                          fillRule="nonzero"
+                          d="M0 256c0 70.68 28.66 134.7 74.98 181.02C121.3 483.34 185.32 512 256 512c70.69 0 134.7-28.66 181.02-74.98C483.34 390.7 512 326.69 512 256c0-70.69-28.66-134.7-74.98-181.02C390.7 28.66 326.69 0 256 0 185.32 0 121.3 28.66 74.98 74.98 28.66 121.3 0 185.31 0 256zm231.67-109.04L340.7 256 231.67 365.04l-40.52-40.51 68.51-68.52-68.52-68.52 40.53-40.53zM101.01 410.99c-39.66-39.66-64.2-94.47-64.2-154.99 0-60.53 24.54-115.33 64.2-154.99 39.66-39.66 94.47-64.2 154.99-64.2 60.53 0 115.33 24.54 154.99 64.2 39.66 39.66 64.2 94.46 64.2 154.99 0 60.53-24.54 115.33-64.2 154.99-39.66 39.66-94.46 64.2-154.99 64.2-60.52 0-115.33-24.54-154.99-64.2z"
+                          fill="#3c0101"
+                        />
+                      </svg>
+                    </div>
+                    <div className="swiper-button image-swiper-button-prev">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        shapeRendering="geometricPrecision"
+                        textRendering="geometricPrecision"
+                        imageRendering="optimizeQuality"
+                        fillRule="evenodd"
+                        clipRule="evenodd"
+                        width="25px"
+                        viewBox="0 0 512 512"
+                      >
+                        <path
+                          fillRule="nonzero"
+                          d="M512 256c0 70.68-28.66 134.7-74.98 181.02C390.7 483.34 326.68 512 256 512c-70.69 0-134.7-28.66-181.02-74.98C28.66 390.7 0 326.69 0 256c0-70.69 28.66-134.7 74.98-181.02C121.3 28.66 185.31 0 256 0c70.68 0 134.7 28.66 181.02 74.98C483.34 121.3 512 185.31 512 256zM280.33 146.96 171.3 256l109.03 109.04 40.52-40.51-68.51-68.52 68.52-68.52-40.53-40.53zm130.66 264.03c39.66-39.66 64.2-94.47 64.2-154.99 0-60.53-24.54-115.33-64.2-154.99-39.66-39.66-94.47-64.2-154.99-64.2-60.53 0-115.33 24.54-154.99 64.2-39.66 39.66-64.2 94.46-64.2 154.99 0 60.53 24.54 115.33 64.2 154.99 39.66 39.66 94.46 64.2 154.99 64.2 60.52 0 115.33-24.54 154.99-64.2z"
+                          fill="#3c0101"
+                        />
+                      </svg>
+                    </div>
+                    <Swiper
+                      slidesPerView={5}
+                      spaceBetween={10}
+                      slidesPerGroup={1}
+                      loop={false}
+                      //slideToClickedSlide={true}
+                      mousewheel={true}
+                      navigation={{
+                        nextEl: `.image-swiper-button-next`,
+                        prevEl: `.image-swiper-button-prev`,
+                        disabledClass: `swiper-button-disabled`,
+                      }}
+                      //navigation={true}
+                      modules={[Pagination, Navigation, Mousewheel]}
+                      className="mySwiper"
+                    >
+                      {(() => {
+                        let slider = [];
+                        for (const key in data.meals) {
+                          if (Object.hasOwnProperty.call(data.meals, key)) {
+                            slider.push(
+                              <SwiperSlide
+                                key={key}
+                                className="cursor-poiner"
+                                //isactive={currentTab === key ? true : false}
                               >
-                                <p className="">{key}</p>
-                              </Link>
-                            </SwiperSlide>
-                          );
+                                <Link
+                                  activeClass="active"
+                                  className={`cursor-pointer text-md font-semibold px-4 md:px-20 py-1 rounded-full duration-300`}
+                                  smooth
+                                  spy
+                                  to={key}
+                                >
+                                  <p className="">{key}</p>
+                                </Link>
+                              </SwiperSlide>
+                            );
+                          }
                         }
-                      }
-                      return slider;
-                    })()}
-                  </Swiper>
+                        return slider;
+                      })()}
+                    </Swiper>
+                  </div>
                 </div>
               ) : (
-                <div className="flex items-center rounded-xl border-[1px] border-[#ccc] mx-3 py-2 my-1">
+                <div className="flex items-center rounded-xl border-[1px] border-[#ccc] mx-8 py-2 my-1">
                   <div className="ml-3">
                     <SearchIcon />
                   </div>
@@ -278,30 +323,37 @@ function App() {
                 const element = data.meals[key];
                 if (element.items.length > 0) {
                   rows.push(
-                    <div className="mt-3 p-4" id={key}>
+                    <div className="mt-3 px-4 md:px-20" id={key}>
                       <h2 className="text-2xl py-3 text-primary font-bold">
                         {key}
                       </h2>
                       {element.items.map((item, k) => (
-                        <div className="rounded-md border-[1px] bg-gray-50 border-third p-4 cursor-pointer my-3">
-                          <div className="flex items-center gap-2 justify-between">
+                        <div
+                          className="rounded-md border-[1px] border-third hover:bg-[#eee] p-3 my-3"
+                          key={k}
+                        >
+                          <div className="flex items-center justify-between">
                             <div className="flex items-center">
-                              <h3 className="text-xl font-semibold ">
+                              <h3 className="text-xl font-semibold mr-2">
                                 {item.name}
                               </h3>
                               <svg
                                 viewBox="0 0 16 16"
-                                className="w-5 h-5"
+                                className="w-5 h-5 cursor-pointer"
                                 width="1em"
                                 height="1em"
                                 role="presentation"
                                 focusable="false"
                                 aria-hidden="true"
+                                onClick={() => setInfoOpen(true)}
                               >
                                 <path d="M8 1.219A6.781 6.781 0 1014.781 8 6.79 6.79 0 008 1.219zm0 12.25A5.469 5.469 0 118 2.53a5.469 5.469 0 010 10.938zM7.344 7.29h1.312v3.334H7.344V7.291zm1.531-1.916a.875.875 0 11-1.75 0 .875.875 0 011.75 0z"></path>
                               </svg>
                             </div>
-                            <button className="bg-gray-100 text-white rounded-full p-2 hover:bg-secondary hover:text-white duration-300 mr-3">
+                            <button
+                              className="bg-gray-100 text-white rounded-full p-2 hover:bg-secondary hover:text-white duration-300 mr-3"
+                              onClick={() => setCarts([...carts, item])}
+                            >
                               <svg
                                 viewBox="0 0 16 16"
                                 width="1em"
@@ -315,8 +367,12 @@ function App() {
                             </button>
                           </div>
 
-                          <p className="text-gray-700 text-sm py-2">
-                            {item.description}
+                          <p className="text-gray-700 text-sm py-1">
+                            {item.description.split("\r\n").map((de, ke) => (
+                              <>
+                                <span>{de}</span> <br />
+                              </>
+                            ))}
                           </p>
                           <h3 className="text-xl font-bold ">{item.price}</h3>
                         </div>
@@ -330,7 +386,7 @@ function App() {
           })()}
           <ScrollButton />
         </div>
-        <div className="w-100 md:w-[30%] px-4 py-10 bg-primary text-white">
+        <div className="w-full hidden md:block  md:w-[20%] px-4 py-10 bg-[#f1f1f1] fixed h-full right-0">
           <h1 className="text-3xl font-bold text-center">Warenkorb</h1>
           <div className="flex justify-center mt-10">
             <svg
@@ -344,7 +400,7 @@ function App() {
             >
               <path
                 d="M12.996 4.719h-2.371V2.53L9.313 1.22H6.688L5.375 2.53V4.72H3.004l-.429 8.452a1.523 1.523 0 001.531 1.61h7.788a1.522 1.522 0 001.531-1.61l-.429-8.452zM6.688 2.53h2.625V4.72H6.688V2.53zM12.05 13.4a.219.219 0 01-.157.07H4.106a.228.228 0 01-.218-.219l.358-7.21h7.508l.359 7.21a.22.22 0 01-.062.149z"
-                fill="#fff"
+                fill="#000"
               ></path>
             </svg>
           </div>
@@ -355,8 +411,77 @@ function App() {
             Füge einige leckere Gerichte aus der Speisekarte hinzu und bestelle
             dein Essen.
           </p>
+          <div class="h-[55%] overflow-y-scroll mt-6 cart-scroll">
+            {carts.map((cart, key) => (
+              <div
+                className=" mt-3 border-[1px] rounded-md p-3 border-primary relative"
+                key={key}
+              >
+                <h1 className="text-md font-semibold pr-5">{cart.name}</h1>
+                <h2 className="text-sm font-semibold pr-5">{cart.price}</h2>
+                <svg
+                  version="1.1"
+                  className="cursor-pointer absolute right-2 top-1/2 translate-y-[-50%] w-6"
+                  id="Layer_1"
+                  xmlns="http://www.w3.org/2000/svg"
+                  xmlnsXlink="http://www.w3.org/1999/xlink"
+                  x="0px"
+                  y="0px"
+                  viewBox="0 0 122.88 119.72"
+                  style={{ enableBackground: "new 0 0 122.88 119.72" }}
+                  xmlSpace="preserve"
+                  onClick={() =>
+                    setCarts([...carts.filter((ca) => ca.name !== cart.name)])
+                  }
+                >
+                  <g>
+                    <path
+                      d="M22.72,0h77.45c6.25,0,11.93,2.56,16.05,6.67c4.11,4.11,6.67,9.79,6.67,16.05v74.29c0,6.25-2.56,11.93-6.67,16.05 l-0.32,0.29c-4.09,3.94-9.64,6.38-15.73,6.38H22.72c-6.25,0-11.93-2.56-16.05-6.67l-0.3-0.32C2.43,108.64,0,103.09,0,97.01V22.71 c0-6.25,2.55-11.93,6.67-16.05C10.78,2.55,16.46,0,22.72,0L22.72,0z M39.92,65.83c-3.3,0-5.97-2.67-5.97-5.97 c0-3.3,2.67-5.97,5.97-5.97h43.05c3.3,0,5.97,2.67,5.97,5.97c0,3.3-2.67,5.97-5.97,5.97H39.92L39.92,65.83z M100.16,10.24H22.72 c-3.43,0-6.55,1.41-8.81,3.67c-2.26,2.26-3.67,5.38-3.67,8.81v74.29c0,3.33,1.31,6.35,3.43,8.59l0.24,0.22 c2.26,2.26,5.38,3.67,8.81,3.67h77.45c3.32,0,6.35-1.31,8.59-3.44l0.21-0.23c2.26-2.26,3.67-5.38,3.67-8.81V22.71 c0-3.42-1.41-6.54-3.67-8.81C106.71,11.65,103.59,10.24,100.16,10.24L100.16,10.24z"
+                      fill="#d01b1b"
+                    />
+                  </g>
+                </svg>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
+      <Drawer
+        open={isInfoOpen}
+        onRequestClose={() => setInfoOpen(!isInfoOpen)}
+        direction="left"
+        modalElementClass="w-[80%] md:w-1/2 ml-auto z-30"
+      >
+        <div className="h-screen bg-white p-10 z-20">
+          <h1 className="text-3xl font-bold opacity-80">
+            Weitere Produktinformationen
+          </h1>
+          <h2 className="text-2xl font-bold my-5 opacity-80">
+            Substanzen oder Produkte, die Allergien oder Intoleranzen
+            hervorrufen können.
+          </h2>
+          <ul className="list-disc ml-5 text-[#555] my-5">
+            <li>Mit Nitritpökelsalz und Nitrat</li>
+            <li>Mit Nitrat</li>
+          </ul>
+          <h2 className="text-2xl font-bold my-5 opacity-80">Allergene</h2>
+          <ul className="list-disc ml-5 text-[#555] my-5">
+            <li>Enthält glutenhaltige/s Getreide/-Erzeugnisse</li>
+            <li>Enthält Ei/-Erzeugnisse</li>
+            <li>Enthält Milch/-Erzeugnisse (laktosehaltig)</li>
+          </ul>
+          <p className="text-md">
+            {" "}
+            Wir stellen dir stets relevante Informationen zur Verfügung, die wir
+            von unseren Partnern über deren Produkte erhalten. In einigen Fällen
+            können die angezeigten Informationen jedoch unvollständig,
+            automatisch generiert und/oder noch nicht von Number One validiert
+            worden sein. Bitte wende dich über dieses Formular an unseren
+            Kundenservice, wenn du Allergien, Unverträglichkeiten oder Fragen zu
+            bestimmten Artikeln hast.
+          </p>
+        </div>
+      </Drawer>
     </>
   );
 }
