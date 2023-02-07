@@ -33,19 +33,16 @@ const ScrollButton = () => {
       onClick={scrollToTop}
     >
       <svg
-        xmlns="http://www.w3.org/2000/svg"
-        shapeRendering="geometricPrecision"
-        textRendering="geometricPrecision"
-        imageRendering="optimizeQuality"
-        fillRule="evenodd"
-        clipRule="evenodd"
-        viewBox="0 0 512 312.36"
+        viewBox="0 0 16 16"
+        width="2em"
+        role="presentation"
+        focusable="false"
+        aria-hidden="true"
       >
         <path
-          fillRule="nonzero"
+          d="M13.18 10.97L8 5.615l-5.18 5.399-.962-.875 5.346-5.565a1.164 1.164 0 011.671 0l5.25 5.495-.945.901z"
           fill="#fff"
-          d="M0 276.77 253.12 0 512 282.48l-32.65 29.88-226.2-246.83L32.66 306.64z"
-        />
+        ></path>
       </svg>
     </button>
   );

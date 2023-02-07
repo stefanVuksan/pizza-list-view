@@ -6,7 +6,6 @@ import { Pagination, Navigation, Mousewheel } from "swiper";
 import mockData from "./restaurants-with-reviews.json";
 import ReactStars from "react-rating-stars-component";
 import { Link } from "react-scroll";
-import Drawer from "react-drag-drawer";
 
 //components
 import ScrollButton from "./components/ScrollButton";
@@ -31,6 +30,8 @@ function App() {
   const [isInfoOpen, setInfoOpen] = useState(false);
   const [carts, setCarts] = useState([]);
   const [cartopen, setCartOpen] = useState(false);
+  const [infoContent, setInfoContent] = useState();
+  const [deliverArea, setDeliverArea] = useState("");
 
   const toggleStick = useCallback(() => {
     const scrolled = document.documentElement.scrollTop;
@@ -78,41 +79,157 @@ function App() {
     setData({ ...data, meals: newMeals });
   };
 
+  const clearKeyWord = () => {
+    setKeyword("");
+    setData(mockData.restaurants.numberone);
+  };
+
   const CartList = () => {
     return (
-      <div className="h-[55%] overflow-y-scroll mt-6 cart-scroll">
-        {carts.map((cart, key) => (
-          <div
-            className=" mt-3 border-[1px] rounded-md p-3 border-primary relative"
-            key={key}
+      <>
+        <h1 className="text-3xl font-bold text-center">Warenkorb</h1>
+        <div className="flex justify-center mt-10">
+          <svg
+            viewBox="0 0 16 16"
+            className="w-12 h-12"
+            width="1em"
+            height="1em"
+            role="presentation"
+            focusable="false"
+            aria-hidden="true"
           >
-            <h1 className="text-md font-semibold pr-5">{cart.name}</h1>
-            <h2 className="text-sm font-semibold pr-5">{cart.price}</h2>
-            <svg
-              version="1.1"
-              className="cursor-pointer absolute right-2 top-1/2 translate-y-[-50%] w-6"
-              id="Layer_1"
-              xmlns="http://www.w3.org/2000/svg"
-              xmlnsXlink="http://www.w3.org/1999/xlink"
-              x="0px"
-              y="0px"
-              viewBox="0 0 122.88 119.72"
-              style={{ enableBackground: "new 0 0 122.88 119.72" }}
-              xmlSpace="preserve"
-              onClick={() =>
-                setCarts([...carts.filter((ca) => ca.name !== cart.name)])
-              }
+            <path
+              d="M12.996 4.719h-2.371V2.53L9.313 1.22H6.688L5.375 2.53V4.72H3.004l-.429 8.452a1.523 1.523 0 001.531 1.61h7.788a1.522 1.522 0 001.531-1.61l-.429-8.452zM6.688 2.53h2.625V4.72H6.688V2.53zM12.05 13.4a.219.219 0 01-.157.07H4.106a.228.228 0 01-.218-.219l.358-7.21h7.508l.359 7.21a.22.22 0 01-.062.149z"
+              fill="#000"
+            ></path>
+          </svg>
+        </div>
+        <h1 className="text-2xl font-bold text-center mt-2">
+          Fülle deinen Warenkorb
+        </h1>
+        <p className="text-md text-center mt-1">
+          Füge einige leckere Gerichte aus der Speisekarte hinzu und bestelle
+          dein Essen.
+        </p>
+        <div className="h-[55%] overflow-y-scroll mt-6 cart-scroll">
+          {carts.map((cart, key) => (
+            <div
+              className=" mt-3 border-[1px] rounded-md p-3 border-primary relative"
+              key={key}
             >
-              <g>
-                <path
-                  d="M22.72,0h77.45c6.25,0,11.93,2.56,16.05,6.67c4.11,4.11,6.67,9.79,6.67,16.05v74.29c0,6.25-2.56,11.93-6.67,16.05 l-0.32,0.29c-4.09,3.94-9.64,6.38-15.73,6.38H22.72c-6.25,0-11.93-2.56-16.05-6.67l-0.3-0.32C2.43,108.64,0,103.09,0,97.01V22.71 c0-6.25,2.55-11.93,6.67-16.05C10.78,2.55,16.46,0,22.72,0L22.72,0z M39.92,65.83c-3.3,0-5.97-2.67-5.97-5.97 c0-3.3,2.67-5.97,5.97-5.97h43.05c3.3,0,5.97,2.67,5.97,5.97c0,3.3-2.67,5.97-5.97,5.97H39.92L39.92,65.83z M100.16,10.24H22.72 c-3.43,0-6.55,1.41-8.81,3.67c-2.26,2.26-3.67,5.38-3.67,8.81v74.29c0,3.33,1.31,6.35,3.43,8.59l0.24,0.22 c2.26,2.26,5.38,3.67,8.81,3.67h77.45c3.32,0,6.35-1.31,8.59-3.44l0.21-0.23c2.26-2.26,3.67-5.38,3.67-8.81V22.71 c0-3.42-1.41-6.54-3.67-8.81C106.71,11.65,103.59,10.24,100.16,10.24L100.16,10.24z"
-                  fill="#d01b1b"
-                />
-              </g>
+              <h1 className="text-md font-semibold pr-5">{cart.name}</h1>
+              <h2 className="text-sm font-semibold pr-5">{cart.price}</h2>
+              <svg
+                version="1.1"
+                className="cursor-pointer absolute right-2 top-1/2 translate-y-[-50%] w-6"
+                id="Layer_1"
+                xmlns="http://www.w3.org/2000/svg"
+                xmlnsXlink="http://www.w3.org/1999/xlink"
+                x="0px"
+                y="0px"
+                viewBox="0 0 122.88 119.72"
+                style={{ enableBackground: "new 0 0 122.88 119.72" }}
+                xmlSpace="preserve"
+                onClick={() =>
+                  setCarts([...carts.filter((ca) => ca.name !== cart.name)])
+                }
+              >
+                <g>
+                  <path
+                    d="M22.72,0h77.45c6.25,0,11.93,2.56,16.05,6.67c4.11,4.11,6.67,9.79,6.67,16.05v74.29c0,6.25-2.56,11.93-6.67,16.05 l-0.32,0.29c-4.09,3.94-9.64,6.38-15.73,6.38H22.72c-6.25,0-11.93-2.56-16.05-6.67l-0.3-0.32C2.43,108.64,0,103.09,0,97.01V22.71 c0-6.25,2.55-11.93,6.67-16.05C10.78,2.55,16.46,0,22.72,0L22.72,0z M39.92,65.83c-3.3,0-5.97-2.67-5.97-5.97 c0-3.3,2.67-5.97,5.97-5.97h43.05c3.3,0,5.97,2.67,5.97,5.97c0,3.3-2.67,5.97-5.97,5.97H39.92L39.92,65.83z M100.16,10.24H22.72 c-3.43,0-6.55,1.41-8.81,3.67c-2.26,2.26-3.67,5.38-3.67,8.81v74.29c0,3.33,1.31,6.35,3.43,8.59l0.24,0.22 c2.26,2.26,5.38,3.67,8.81,3.67h77.45c3.32,0,6.35-1.31,8.59-3.44l0.21-0.23c2.26-2.26,3.67-5.38,3.67-8.81V22.71 c0-3.42-1.41-6.54-3.67-8.81C106.71,11.65,103.59,10.24,100.16,10.24L100.16,10.24z"
+                    fill="#d01b1b"
+                  />
+                </g>
+              </svg>
+            </div>
+          ))}
+        </div>
+      </>
+    );
+  };
+
+  const MealInfo = () => {
+    return (
+      <div className=" bg-white p-2 z-20">
+        <h1 className="text-3xl font-bold opacity-80">
+          Weitere Produktinformationen
+        </h1>
+        <h2 className="text-2xl font-bold my-5 opacity-80">
+          Substanzen oder Produkte, die Allergien oder Intoleranzen hervorrufen
+          können.
+        </h2>
+        <ul className="list-disc ml-5 text-[#555] my-5">
+          <li>Mit Nitritpökelsalz und Nitrat</li>
+          <li>Mit Nitrat</li>
+        </ul>
+        <h2 className="text-2xl font-bold my-5 opacity-80">Allergene</h2>
+        <ul className="list-disc ml-5 text-[#555] my-5">
+          <li>Enthält glutenhaltige/s Getreide/-Erzeugnisse</li>
+          <li>Enthält Ei/-Erzeugnisse</li>
+          <li>Enthält Milch/-Erzeugnisse (laktosehaltig)</li>
+        </ul>
+        <p className="text-md">
+          Wir stellen dir stets relevante Informationen zur Verfügung, die wir
+          von unseren Partnern über deren Produkte erhalten. In einigen Fällen
+          können die angezeigten Informationen jedoch unvollständig, automatisch
+          generiert und/oder noch nicht von Number One validiert worden sein.
+          Bitte wende dich über dieses Formular an unseren Kundenservice, wenn
+          du Allergien, Unverträglichkeiten oder Fragen zu bestimmten Artikeln
+          hast.
+        </p>
+      </div>
+    );
+  };
+
+  const CloseIcon = () => {
+    return (
+      <svg
+        version="1.1"
+        id="Layer_1"
+        xmlns="http://www.w3.org/2000/svg"
+        xmlnsXlink="http://www.w3.org/1999/xlink"
+        x="0px"
+        y="0px"
+        width="20px"
+        viewBox="0 0 122.881 122.88"
+        enableBackground="new 0 0 122.881 122.88"
+        xmlSpace="preserve"
+      >
+        <g>
+          <path d="M61.44,0c16.966,0,32.326,6.877,43.445,17.996c11.119,11.118,17.996,26.479,17.996,43.444 c0,16.967-6.877,32.326-17.996,43.444C93.766,116.003,78.406,122.88,61.44,122.88c-16.966,0-32.326-6.877-43.444-17.996 C6.877,93.766,0,78.406,0,61.439c0-16.965,6.877-32.326,17.996-43.444C29.114,6.877,44.474,0,61.44,0L61.44,0z M80.16,37.369 c1.301-1.302,3.412-1.302,4.713,0c1.301,1.301,1.301,3.411,0,4.713L65.512,61.444l19.361,19.362c1.301,1.301,1.301,3.411,0,4.713 c-1.301,1.301-3.412,1.301-4.713,0L60.798,66.157L41.436,85.52c-1.301,1.301-3.412,1.301-4.713,0c-1.301-1.302-1.301-3.412,0-4.713 l19.363-19.362L36.723,42.082c-1.301-1.302-1.301-3.412,0-4.713c1.301-1.302,3.412-1.302,4.713,0l19.363,19.362L80.16,37.369 L80.16,37.369z M100.172,22.708C90.26,12.796,76.566,6.666,61.44,6.666c-15.126,0-28.819,6.13-38.731,16.042 C12.797,32.62,6.666,46.314,6.666,61.439c0,15.126,6.131,28.82,16.042,38.732c9.912,9.911,23.605,16.042,38.731,16.042 c15.126,0,28.82-6.131,38.732-16.042c9.912-9.912,16.043-23.606,16.043-38.732C116.215,46.314,110.084,32.62,100.172,22.708 L100.172,22.708z" />
+        </g>
+      </svg>
+    );
+  };
+
+  const MealCart = ({ value, areaChange }) => {
+    return (
+      <>
+        <div className="flex items-center rounded-xl border-[1px] border-[#ccc] py-2 my-1">
+          <div className="ml-3">
+            <svg
+              viewBox="0 0 16 16"
+              width="1em"
+              height="1em"
+              role="presentation"
+              focusable="false"
+              aria-hidden="true"
+            >
+              <path d="M11.938 3.135a5.574 5.574 0 00-7.875 7.875L8 15l3.938-3.938a5.575 5.575 0 000-7.927zm-.928 7L8 13.101l-3.01-3.01a4.27 4.27 0 010-6.029 4.27 4.27 0 016.02 0 4.27 4.27 0 010 6.03v.043zM8 4.719A2.406 2.406 0 108 9.53 2.406 2.406 0 008 4.72zm0 3.5A1.094 1.094 0 118 6.03 1.094 1.094 0 018 8.22z"></path>
             </svg>
           </div>
-        ))}
-      </div>
+          <input
+            defaultValue={value}
+            onChange={(e) => {
+              areaChange(e.target.value);
+            }}
+            className="w-[80%] ml-3 outline-none"
+          />
+          <button className="float-right ml-auto mr-4">
+            <CloseIcon />
+          </button>
+        </div>
+      </>
     );
   };
 
@@ -331,7 +448,7 @@ function App() {
                 </div>
               ) : (
                 <div className="flex items-center rounded-xl border-[1px] border-[#ccc] mx-8 py-2 my-1">
-                  <div className="ml-3">
+                  <div className="ml-3" onClick={() => setSearchBox(false)}>
                     <SearchIcon />
                   </div>
                   <input
@@ -341,24 +458,10 @@ function App() {
                   />
                   <button
                     className="float-right ml-auto mr-4"
-                    onClick={() => setSearchBox(false)}
+                    //onClick={() => setSearchBox(false)}
+                    onClick={() => clearKeyWord()}
                   >
-                    <svg
-                      version="1.1"
-                      id="Layer_1"
-                      xmlns="http://www.w3.org/2000/svg"
-                      xmlnsXlink="http://www.w3.org/1999/xlink"
-                      x="0px"
-                      y="0px"
-                      width="20px"
-                      viewBox="0 0 122.881 122.88"
-                      enableBackground="new 0 0 122.881 122.88"
-                      xmlSpace="preserve"
-                    >
-                      <g>
-                        <path d="M61.44,0c16.966,0,32.326,6.877,43.445,17.996c11.119,11.118,17.996,26.479,17.996,43.444 c0,16.967-6.877,32.326-17.996,43.444C93.766,116.003,78.406,122.88,61.44,122.88c-16.966,0-32.326-6.877-43.444-17.996 C6.877,93.766,0,78.406,0,61.439c0-16.965,6.877-32.326,17.996-43.444C29.114,6.877,44.474,0,61.44,0L61.44,0z M80.16,37.369 c1.301-1.302,3.412-1.302,4.713,0c1.301,1.301,1.301,3.411,0,4.713L65.512,61.444l19.361,19.362c1.301,1.301,1.301,3.411,0,4.713 c-1.301,1.301-3.412,1.301-4.713,0L60.798,66.157L41.436,85.52c-1.301,1.301-3.412,1.301-4.713,0c-1.301-1.302-1.301-3.412,0-4.713 l19.363-19.362L36.723,42.082c-1.301-1.302-1.301-3.412,0-4.713c1.301-1.302,3.412-1.302,4.713,0l19.363,19.362L80.16,37.369 L80.16,37.369z M100.172,22.708C90.26,12.796,76.566,6.666,61.44,6.666c-15.126,0-28.819,6.13-38.731,16.042 C12.797,32.62,6.666,46.314,6.666,61.439c0,15.126,6.131,28.82,16.042,38.732c9.912,9.911,23.605,16.042,38.731,16.042 c15.126,0,28.82-6.131,38.732-16.042c9.912-9.912,16.043-23.606,16.043-38.732C116.215,46.314,110.084,32.62,100.172,22.708 L100.172,22.708z" />
-                      </g>
-                    </svg>
+                    <CloseIcon />
                   </button>
                 </div>
               )}
@@ -377,8 +480,20 @@ function App() {
                       </h2>
                       {element.items.map((item, k) => (
                         <div
-                          className="rounded-md border-[1px] border-third hover:bg-[#eee] p-3 my-3"
+                          className="rounded-md border-[1px] border-third hover:bg-[#eee] p-3 my-3 cursor-pointer"
                           key={k}
+                          onClick={(e) => {
+                            if (e.target.id !== "info") {
+                              setInfoContent(
+                                <MealCart
+                                  value={deliverArea}
+                                  areaChange={setDeliverArea}
+                                />
+                              );
+                            } else {
+                            }
+                            setInfoOpen(true);
+                          }}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center">
@@ -390,12 +505,21 @@ function App() {
                                 className="w-5 h-5 cursor-pointer"
                                 width="1em"
                                 height="1em"
+                                id="info"
                                 role="presentation"
                                 focusable="false"
                                 aria-hidden="true"
-                                onClick={() => setInfoOpen(true)}
+                                onClick={(e) => {
+                                  setInfoOpen(true);
+                                  if (e.target.id === "info") {
+                                    setInfoContent(<MealInfo />);
+                                  }
+                                }}
                               >
-                                <path d="M8 1.219A6.781 6.781 0 1014.781 8 6.79 6.79 0 008 1.219zm0 12.25A5.469 5.469 0 118 2.53a5.469 5.469 0 010 10.938zM7.344 7.29h1.312v3.334H7.344V7.291zm1.531-1.916a.875.875 0 11-1.75 0 .875.875 0 011.75 0z"></path>
+                                <path
+                                  id="info"
+                                  d="M8 1.219A6.781 6.781 0 1014.781 8 6.79 6.79 0 008 1.219zm0 12.25A5.469 5.469 0 118 2.53a5.469 5.469 0 010 10.938zM7.344 7.29h1.312v3.334H7.344V7.291zm1.531-1.916a.875.875 0 11-1.75 0 .875.875 0 011.75 0z"
+                                ></path>
                               </svg>
                             </div>
                             <button
@@ -438,23 +562,18 @@ function App() {
             onClick={() => setCartOpen(true)}
           >
             <svg
-              version="1.1"
-              id="Layer_1"
-              xmlns="http://www.w3.org/2000/svg"
-              xmlnsXlink="http://www.w3.org/1999/xlink"
-              x="0px"
-              width="30px"
-              y="0px"
-              viewBox="0 0 122.9 107.5"
-              style={{ enableBackground: "new 0 0 122.9 107.5" }}
-              xmlSpace="preserve"
+              viewBox="0 0 16 16"
+              className="w-8 h-8"
+              width="1em"
+              height="1em"
+              role="presentation"
+              focusable="false"
+              aria-hidden="true"
             >
-              <g>
-                <path
-                  d="M3.9,7.9C1.8,7.9,0,6.1,0,3.9C0,1.8,1.8,0,3.9,0h10.2c0.1,0,0.3,0,0.4,0c3.6,0.1,6.8,0.8,9.5,2.5c3,1.9,5.2,4.8,6.4,9.1 c0,0.1,0,0.2,0.1,0.3l1,4H119c2.2,0,3.9,1.8,3.9,3.9c0,0.4-0.1,0.8-0.2,1.2l-10.2,41.1c-0.4,1.8-2,3-3.8,3v0H44.7 c1.4,5.2,2.8,8,4.7,9.3c2.3,1.5,6.3,1.6,13,1.5h0.1v0h45.2c2.2,0,3.9,1.8,3.9,3.9c0,2.2-1.8,3.9-3.9,3.9H62.5v0 c-8.3,0.1-13.4-0.1-17.5-2.8c-4.2-2.8-6.4-7.6-8.6-16.3l0,0L23,13.9c0-0.1,0-0.1-0.1-0.2c-0.6-2.2-1.6-3.7-3-4.5 c-1.4-0.9-3.3-1.3-5.5-1.3c-0.1,0-0.2,0-0.3,0H3.9L3.9,7.9z M96,88.3c5.3,0,9.6,4.3,9.6,9.6c0,5.3-4.3,9.6-9.6,9.6 c-5.3,0-9.6-4.3-9.6-9.6C86.4,92.6,90.7,88.3,96,88.3L96,88.3z M53.9,88.3c5.3,0,9.6,4.3,9.6,9.6c0,5.3-4.3,9.6-9.6,9.6 c-5.3,0-9.6-4.3-9.6-9.6C44.3,92.6,48.6,88.3,53.9,88.3L53.9,88.3z M33.7,23.7l8.9,33.5h63.1l8.3-33.5H33.7L33.7,23.7z"
-                  fill="#fff"
-                />
-              </g>
+              <path
+                d="M12.996 4.719h-2.371V2.53L9.313 1.22H6.688L5.375 2.53V4.72H3.004l-.429 8.452a1.523 1.523 0 001.531 1.61h7.788a1.522 1.522 0 001.531-1.61l-.429-8.452zM6.688 2.53h2.625V4.72H6.688V2.53zM12.05 13.4a.219.219 0 01-.157.07H4.106a.228.228 0 01-.218-.219l.358-7.21h7.508l.359 7.21a.22.22 0 01-.062.149z"
+                fill="#fff"
+              ></path>
             </svg>
           </button>
         </div>
@@ -464,8 +583,6 @@ function App() {
             <svg
               viewBox="0 0 16 16"
               className="w-12 h-12"
-              width="1em"
-              height="1em"
               role="presentation"
               focusable="false"
               aria-hidden="true"
@@ -486,45 +603,47 @@ function App() {
           <CartList />
         </div>
       </div>
-      <Drawer
-        open={isInfoOpen}
-        onRequestClose={() => setInfoOpen(!isInfoOpen)}
-        direction="left"
-        modalElementClass="w-[80%] md:w-1/2 ml-auto z-30"
-      >
-        <div className="h-screen bg-white p-10 z-20 overflow-y-scroll">
-          <h1 className="text-3xl font-bold opacity-80">
-            Weitere Produktinformationen
-          </h1>
-          <h2 className="text-2xl font-bold my-5 opacity-80">
-            Substanzen oder Produkte, die Allergien oder Intoleranzen
-            hervorrufen können.
-          </h2>
-          <ul className="list-disc ml-5 text-[#555] my-5">
-            <li>Mit Nitritpökelsalz und Nitrat</li>
-            <li>Mit Nitrat</li>
-          </ul>
-          <h2 className="text-2xl font-bold my-5 opacity-80">Allergene</h2>
-          <ul className="list-disc ml-5 text-[#555] my-5">
-            <li>Enthält glutenhaltige/s Getreide/-Erzeugnisse</li>
-            <li>Enthält Ei/-Erzeugnisse</li>
-            <li>Enthält Milch/-Erzeugnisse (laktosehaltig)</li>
-          </ul>
-          <p className="text-md">
-            {" "}
-            Wir stellen dir stets relevante Informationen zur Verfügung, die wir
-            von unseren Partnern über deren Produkte erhalten. In einigen Fällen
-            können die angezeigten Informationen jedoch unvollständig,
-            automatisch generiert und/oder noch nicht von Number One validiert
-            worden sein. Bitte wende dich über dieses Formular an unseren
-            Kundenservice, wenn du Allergien, Unverträglichkeiten oder Fragen zu
-            bestimmten Artikeln hast.
-          </p>
+      {window.innerWidth < 768 ? (
+        <>
+          <CustomDrawer isOpen={cartopen} setIsOpen={setCartOpen} dir={"right"}>
+            <CartList />
+          </CustomDrawer>
+          <CustomDrawer
+            isOpen={isInfoOpen}
+            setIsOpen={setInfoOpen}
+            dir={"left"}
+          >
+            {infoContent}
+          </CustomDrawer>
+        </>
+      ) : isInfoOpen ? (
+        <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-[#08080870]">
+          <div className="relative w-auto my-6 mx-auto w-1/2">
+            <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+              <div className="flex items-start justify-end p-5 border-b border-solid border-gray-300 rounded-t ">
+                <button
+                  className="bg-transparent border-0 text-black float-right"
+                  onClick={() => setInfoOpen(false)}
+                >
+                  <svg
+                    viewBox="0 0 16 16"
+                    width="1em"
+                    height="1em"
+                    role="presentation"
+                    focusable="false"
+                    aria-hidden="false"
+                  >
+                    <path d="M11.868 3.205L8 7.072 4.133 3.205l-.928.927L7.073 8l-3.868 3.867.928.928L8 8.927l3.868 3.868.927-.928L8.928 8l3.867-3.868-.927-.927z"></path>
+                  </svg>
+                </button>
+              </div>
+              <div className="p-3">{infoContent}</div>
+            </div>
+          </div>
         </div>
-      </Drawer>
-      <CustomDrawer isOpen={cartopen} setIsOpen={setCartOpen}>
-        <CartList />
-      </CustomDrawer>
+      ) : (
+        <></>
+      )}
     </>
   );
 }
